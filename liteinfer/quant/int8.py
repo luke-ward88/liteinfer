@@ -10,7 +10,12 @@ import numpy as np
 
 from liteinfer.quant.params import QuantParams
 
-__all__ = ["quantize_symmetric", "quantize_symmetric_per_channel", "dequantize"]
+__all__ = [
+    "quantize_symmetric",
+    "quantize_symmetric_per_channel",
+    "quantize_asymmetric",
+    "dequantize",
+]
 
 _INT8_QMAX = 127
 
@@ -55,6 +60,34 @@ def quantize_symmetric_per_channel(
         bits=8,
         symmetric=True,
         axis=axis,
+    )
+    return q, params
+
+
+def quantize_asymmetric(x: np.ndarray) -> tuple[np.ndarray, QuantParams]:
+    """Per-tensor asymmetric (affine) UINT8 quantization.
+
+    Unlike the symmetric scheme, the full ``[min, max]`` range is mapped onto
+    ``[0, 255]`` with an integer zero-point, which is a better fit for tensors
+    whose distribution is not centered at zero (e.g. post-ReLU activations).
+    """
+    x = np.asarray(x, dtype=np.float32)
+    xmin = float(x.min())
+    xmax = float(x.max())
+    qmin, qmax = 0, 255
+    if xmax == xmin:
+        scale = 1.0
+        zero_point = 0
+    else:
+        scale = (xmax - xmin) / (qmax - qmin)
+        zero_point = int(np.clip(round(qmin - xmin / scale), qmin, qmax))
+    q = np.clip(np.round(x / scale) + zero_point, qmin, qmax).astype(np.uint8)
+    params = QuantParams(
+        scale=np.asarray(scale, dtype=np.float32),
+        zero_point=np.asarray(zero_point, dtype=np.int32),
+        bits=8,
+        symmetric=False,
+        axis=None,
     )
     return q, params
 
