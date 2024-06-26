@@ -78,9 +78,7 @@ def quantize_group(x: np.ndarray, group_size: int = 64) -> PackedInt4:
     scale = np.where(scale > 0, scale, 1.0).astype(np.float32)
     zero = np.clip(np.round(-gmin / scale), 0, 15).astype(np.uint8)
 
-    codes = np.clip(
-        np.round(groups / scale[:, None]) + zero[:, None], 0, 15
-    ).astype(np.uint8)
+    codes = np.clip(np.round(groups / scale[:, None]) + zero[:, None], 0, 15).astype(np.uint8)
     return PackedInt4(
         data=pack_nibbles(codes),
         scale=scale,

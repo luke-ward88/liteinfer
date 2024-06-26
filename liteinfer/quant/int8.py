@@ -40,9 +40,7 @@ def quantize_symmetric(x: np.ndarray) -> tuple[np.ndarray, QuantParams]:
     return q, params
 
 
-def quantize_symmetric_per_channel(
-    x: np.ndarray, axis: int = 0
-) -> tuple[np.ndarray, QuantParams]:
+def quantize_symmetric_per_channel(x: np.ndarray, axis: int = 0) -> tuple[np.ndarray, QuantParams]:
     """Symmetric INT8 quantization with one scale per channel along ``axis``.
 
     Per-channel scales track weight magnitude variation across output channels
