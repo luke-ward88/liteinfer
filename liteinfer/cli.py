@@ -82,6 +82,21 @@ def _cmd_spec(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_bench(args: argparse.Namespace) -> int:
+    """Sweep gamma and report acceptance rate vs. tokens-per-step."""
+    draft, target = make_draft_target(args.vocab, order=args.order, seed=args.seed)
+    print(f"{'gamma':>6} {'accept_rate':>12} {'tokens/step':>12}")
+    for gamma in range(1, args.max_gamma + 1):
+        rng = np.random.default_rng(args.seed)
+        res = speculative_decode(
+            [0], draft, target, gamma=gamma, max_new_tokens=args.tokens, rng=rng
+        )
+        steps = res.proposed / gamma
+        tps = (len(res.tokens) - 1) / steps if steps else 0.0
+        print(f"{gamma:>6} {res.acceptance_rate:>12.3f} {tps:>12.2f}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="liteinfer", description="Efficient LLM inference toolkit")
     parser.add_argument("--version", action="version", version=f"liteinfer {__version__}")
@@ -111,6 +126,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_spec.add_argument("--draft-temp", type=float, default=1.5)
     p_spec.add_argument("--seed", type=int, default=0)
     p_spec.set_defaults(func=_cmd_spec)
+
+    p_bench = sub.add_parser("bench", help="sweep gamma and report acceptance rate")
+    p_bench.add_argument("--vocab", type=int, default=64)
+    p_bench.add_argument("--order", type=int, default=3)
+    p_bench.add_argument("--max-gamma", type=int, default=6)
+    p_bench.add_argument("--tokens", type=int, default=64)
+    p_bench.add_argument("--seed", type=int, default=0)
+    p_bench.set_defaults(func=_cmd_bench)
 
     return parser
 
