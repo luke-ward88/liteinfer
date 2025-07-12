@@ -16,6 +16,9 @@ dependencies = ["numpy>=1.21"]
 torch = ["torch>=2.0"]
 dev = ["pytest>=7", "pytest-cov", "ruff", "mypy"]
 
+[project.scripts]
+liteinfer = "liteinfer.cli:main"
+
 [tool.setuptools.packages.find]
 include = ["liteinfer*"]
 
