@@ -50,3 +50,18 @@ def test_group_quant_smaller_groups_reduce_error():
     err_big = np.abs(x - dequantize_group(quantize_group(x, 256))).mean()
     err_small = np.abs(x - dequantize_group(quantize_group(x, 32))).mean()
     assert err_small < err_big
+
+
+def test_group_quant_length_not_multiple_of_group():
+    # exercises the tail padding / trimming path
+    for n in (1, 7, 63, 65, 130):
+        x = np.linspace(-1, 1, n, dtype=np.float32)
+        packed = quantize_group(x, group_size=64)
+        xr = dequantize_group(packed)
+        assert xr.shape == (n,)
+
+
+def test_pack_single_nibble():
+    packed = pack_nibbles(np.array([5], dtype=np.uint8))
+    assert packed.size == 1
+    assert unpack_nibbles(packed, count=1)[0] == 5
