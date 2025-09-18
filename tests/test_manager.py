@@ -1,5 +1,6 @@
 import pytest
 
+from liteinfer.errors import ShapeError
 from liteinfer.kvcache.block import BlockAllocator
 from liteinfer.kvcache.manager import BlockSpaceManager
 
@@ -45,3 +46,25 @@ def test_duplicate_sequence_raises():
     mgr.add_sequence(0)
     with pytest.raises(ValueError):
         mgr.add_sequence(0)
+
+
+def test_interleaved_sequences_share_pool():
+    alloc = BlockAllocator(num_blocks=6, block_size=4)
+    mgr = BlockSpaceManager(alloc)
+    mgr.add_sequence(0)
+    mgr.add_sequence(1)
+    for _ in range(5):  # seq 0 -> 2 blocks
+        mgr.append_token(0)
+    for _ in range(3):  # seq 1 -> 1 block
+        mgr.append_token(1)
+    assert alloc.num_free == 6 - 3
+    mgr.free_sequence(0)
+    assert alloc.num_free == 6 - 1  # only seq 1's block still held
+
+
+def test_slot_for_out_of_range_raises():
+    mgr = make_manager()
+    mgr.add_sequence(0)
+    mgr.append_token(0)
+    with pytest.raises(ShapeError):
+        mgr.slot_for(0, 5)
