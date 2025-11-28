@@ -27,6 +27,9 @@ def quantize_symmetric(x: np.ndarray) -> tuple[np.ndarray, QuantParams]:
     ±127. Zero maps exactly to 0 (that is the point of the symmetric scheme).
     """
     x = np.asarray(x, dtype=np.float32)
+    # guard against non-finite weights: NaN/inf survive the divide and produce
+    # garbage once cast to int8, so scrub them before computing the range
+    x = np.nan_to_num(x, nan=0.0, posinf=0.0, neginf=0.0)
     amax = float(np.abs(x).max())
     scale = amax / _INT8_QMAX if amax > 0 else 1.0
     q = np.clip(np.round(x / scale), -_INT8_QMAX, _INT8_QMAX).astype(np.int8)
