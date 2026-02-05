@@ -20,6 +20,7 @@ from typing import Protocol
 import numpy as np
 
 from liteinfer.specdec.acceptance import accept_token, resample_on_reject
+from liteinfer.specdec.sampler import make_rng
 
 
 class ProbModel(Protocol):
@@ -47,7 +48,7 @@ def speculative_decode(
     rng: np.random.Generator | None = None,
 ) -> SpecDecodeResult:
     """Generate tokens from ``target`` accelerated by ``draft`` proposals."""
-    rng = rng or np.random.default_rng()
+    rng = make_rng(rng)
     tokens = list(prefix)
     proposed = 0
     accepted = 0

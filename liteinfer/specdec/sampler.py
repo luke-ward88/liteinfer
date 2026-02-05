@@ -11,6 +11,17 @@ from __future__ import annotations
 import numpy as np
 
 
+def make_rng(seed: int | np.random.Generator | None = None) -> np.random.Generator:
+    """Coerce a seed / existing generator / ``None`` into a ``Generator``.
+
+    Centralizing this keeps every entry point (CLI, examples, the decode loop)
+    from re-implementing the same "seed or generator?" dance.
+    """
+    if isinstance(seed, np.random.Generator):
+        return seed
+    return np.random.default_rng(seed)
+
+
 def softmax(logits: np.ndarray, temperature: float = 1.0) -> np.ndarray:
     """Temperature-scaled softmax over the last axis.
 
