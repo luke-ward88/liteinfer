@@ -1,7 +1,7 @@
 import pytest
 
 from liteinfer.errors import ShapeError
-from liteinfer.kvcache.block import BlockAllocator
+from liteinfer.kvcache.blocks import BlockAllocator
 from liteinfer.kvcache.manager import BlockSpaceManager
 
 

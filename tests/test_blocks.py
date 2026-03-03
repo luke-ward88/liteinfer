@@ -1,7 +1,7 @@
 import pytest
 
 from liteinfer.errors import CacheFullError
-from liteinfer.kvcache.block import BlockAllocator
+from liteinfer.kvcache.blocks import BlockAllocator
 
 
 def test_allocate_reduces_free_count():

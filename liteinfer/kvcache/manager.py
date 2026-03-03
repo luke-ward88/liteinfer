@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from liteinfer.errors import ShapeError
-from liteinfer.kvcache.block import BlockAllocator
+from liteinfer.kvcache.blocks import BlockAllocator
 
 
 @dataclass

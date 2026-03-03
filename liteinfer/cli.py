@@ -14,7 +14,7 @@ import numpy as np
 
 from liteinfer import __version__
 from liteinfer.kvcache.attention import paged_attention
-from liteinfer.kvcache.block import BlockAllocator
+from liteinfer.kvcache.blocks import BlockAllocator
 from liteinfer.kvcache.manager import BlockSpaceManager
 from liteinfer.kvcache.paged_cache import PagedKVStore
 from liteinfer.quant.int8 import dequantize, quantize_symmetric_per_channel
