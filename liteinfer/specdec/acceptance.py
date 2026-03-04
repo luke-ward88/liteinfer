@@ -41,11 +41,12 @@ def residual_distribution(p: np.ndarray, q: np.ndarray) -> np.ndarray:
     the target distribution ``p`` exactly. Using ``max(p - q, 0)`` (a ReLU, not a
     symmetric clamp) is what makes the correction exact.
     """
-    resid = np.maximum(np.asarray(p, dtype=np.float64) - np.asarray(q, dtype=np.float64), 0.0)
+    p = np.asarray(p, dtype=np.float64)
+    q = np.asarray(q, dtype=np.float64)
+    resid = np.maximum(p - q, 0.0)
     total = resid.sum()
     if total <= 0:
         # p and q coincide on their support; fall back to p
-        p = np.asarray(p, dtype=np.float64)
         return p / p.sum()
     return resid / total
 
