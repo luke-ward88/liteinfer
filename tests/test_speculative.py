@@ -36,3 +36,13 @@ def test_output_distribution_matches_target():
         counts[res.tokens[-1]] += 1
     empirical = counts / n
     assert np.max(np.abs(empirical - p_true)) < 0.03
+
+
+def test_gamma_zero_falls_back_to_target():
+    # with no draft proposals the loop degrades to plain target sampling
+    draft, target = make_draft_target(vocab_size=16, seed=2)
+    rng = np.random.default_rng(0)
+    res = speculative_decode([0], draft, target, gamma=0, max_new_tokens=8, rng=rng)
+    assert len(res.tokens) - 1 == 8
+    assert res.proposed == 0
+    assert res.acceptance_rate == 0.0
