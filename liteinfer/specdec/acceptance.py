@@ -28,7 +28,8 @@ def accept_token(
     qi = float(q[token])
     if qi <= 0:
         return False
-    ratio = float(p[token]) / qi
+    # min(1, p/q): a draft token the target likes at least as much is always kept
+    ratio = min(1.0, float(p[token]) / qi)
     return bool(rng.random() < ratio)
 
 
