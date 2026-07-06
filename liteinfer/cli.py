@@ -19,6 +19,8 @@ from liteinfer.kvcache.manager import BlockSpaceManager
 from liteinfer.kvcache.paged_cache import PagedKVStore
 from liteinfer.quant.int8 import dequantize, quantize_symmetric_per_channel
 from liteinfer.quant.linear import QuantLinear
+from liteinfer.specdec.ngram import make_draft_target
+from liteinfer.specdec.speculative import speculative_decode
 
 
 def _cmd_quant(args: argparse.Namespace) -> int:
@@ -63,6 +65,23 @@ def _cmd_kv(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_spec(args: argparse.Namespace) -> int:
+    """Run speculative decoding on the toy models and report acceptance rate."""
+    draft, target = make_draft_target(
+        args.vocab, order=args.order, seed=args.seed, draft_temperature=args.draft_temp
+    )
+    rng = np.random.default_rng(args.seed)
+    res = speculative_decode(
+        [0], draft, target, gamma=args.gamma, max_new_tokens=args.tokens, rng=rng
+    )
+    print(f"generated tokens: {len(res.tokens) - 1}")
+    print(f"gamma           : {args.gamma}")
+    print(f"proposed        : {res.proposed}")
+    print(f"accepted        : {res.accepted}")
+    print(f"acceptance rate : {res.acceptance_rate:.3f}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="liteinfer", description="Efficient LLM inference toolkit")
     parser.add_argument("--version", action="version", version=f"liteinfer {__version__}")
@@ -83,6 +102,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_kv.add_argument("--head-dim", type=int, default=8)
     p_kv.add_argument("--seed", type=int, default=0)
     p_kv.set_defaults(func=_cmd_kv)
+
+    p_spec = sub.add_parser("spec", help="run speculative decoding on toy models")
+    p_spec.add_argument("--vocab", type=int, default=64)
+    p_spec.add_argument("--order", type=int, default=3)
+    p_spec.add_argument("--gamma", type=int, default=4)
+    p_spec.add_argument("--tokens", type=int, default=32)
+    p_spec.add_argument("--draft-temp", type=float, default=1.5)
+    p_spec.add_argument("--seed", type=int, default=0)
+    p_spec.set_defaults(func=_cmd_spec)
 
     return parser
 
