@@ -30,3 +30,30 @@ def accept_token(
         return False
     ratio = float(p[token]) / qi
     return bool(rng.random() < ratio)
+
+
+def residual_distribution(p: np.ndarray, q: np.ndarray) -> np.ndarray:
+    """Return the normalized residual ``max(p - q, 0)``.
+
+    When a draft token is rejected we must sample the replacement from this
+    residual so that, combined with the acceptances, the overall output matches
+    the target distribution ``p`` exactly. Using ``max(p - q, 0)`` (a ReLU, not a
+    symmetric clamp) is what makes the correction exact.
+    """
+    resid = np.maximum(np.asarray(p, dtype=np.float64) - np.asarray(q, dtype=np.float64), 0.0)
+    total = resid.sum()
+    if total <= 0:
+        # p and q coincide on their support; fall back to p
+        p = np.asarray(p, dtype=np.float64)
+        return p / p.sum()
+    return resid / total
+
+
+def resample_on_reject(
+    p: np.ndarray,
+    q: np.ndarray,
+    rng: np.random.Generator,
+) -> int:
+    """Draw a replacement token from the residual distribution."""
+    resid = residual_distribution(p, q)
+    return int(rng.choice(resid.size, p=resid))
