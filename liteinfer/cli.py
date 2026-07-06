@@ -98,7 +98,9 @@ def _cmd_bench(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="liteinfer", description="Efficient LLM inference toolkit")
+    parser = argparse.ArgumentParser(
+        prog="liteinfer", description="Efficient LLM inference toolkit"
+    )
     parser.add_argument("--version", action="version", version=f"liteinfer {__version__}")
     parser.set_defaults(func=None)
     sub = parser.add_subparsers(dest="command", metavar="{quant,kv,spec,bench}")
