@@ -14,14 +14,13 @@ def test_probs_are_valid_distribution():
 def test_same_context_is_deterministic():
     a = NGramModel(20, order=3, seed=5)
     b = NGramModel(20, order=3, seed=5)
-    np.testing.assert_array_equal(
-        a.next_token_probs([1, 2, 3]), b.next_token_probs([9, 1, 2, 3])
-    )
+    np.testing.assert_array_equal(a.next_token_probs([1, 2, 3]), b.next_token_probs([9, 1, 2, 3]))
 
 
 def test_higher_temperature_flattens():
     cold = NGramModel(50, order=2, seed=1, temperature=0.5)
     hot = NGramModel(50, order=2, seed=1, temperature=4.0)
+
     # a flatter distribution has higher entropy
     def entropy(p):
         return -np.sum(p * np.log(p + 1e-12))

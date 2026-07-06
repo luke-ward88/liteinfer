@@ -19,9 +19,7 @@ TOKENS = 64
 def main() -> None:
     print(f"{'draft_temp':>10} {'accept_rate':>12} {'tokens/step':>12}")
     for draft_temp in (1.1, 1.5, 2.0, 3.0):
-        draft, target = make_draft_target(
-            VOCAB, order=3, seed=0, draft_temperature=draft_temp
-        )
+        draft, target = make_draft_target(VOCAB, order=3, seed=0, draft_temperature=draft_temp)
         rng = np.random.default_rng(0)
         res = speculative_decode(
             [0, 1, 2], draft, target, gamma=GAMMA, max_new_tokens=TOKENS, rng=rng
