@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [{ name = "Song Yuchen" }]
-dependencies = ["numpy>=1.21"]
+dependencies = ["numpy>=2.2.6"]
 
 [project.optional-dependencies]
 torch = ["torch>=2.0"]
