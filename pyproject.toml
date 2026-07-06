@@ -18,3 +18,14 @@ dev = ["pytest>=7", "pytest-cov", "ruff", "mypy"]
 
 [tool.setuptools.packages.find]
 include = ["liteinfer*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = ["E741"]  # ambiguous var name l/O/I — occurs in math-heavy code
+
+[tool.ruff.lint.isort]
+known-first-party = ["liteinfer"]
