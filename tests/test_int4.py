@@ -1,6 +1,11 @@
 import numpy as np
 
-from liteinfer.quant.int4 import pack_nibbles, unpack_nibbles
+from liteinfer.quant.int4 import (
+    dequantize_group,
+    pack_nibbles,
+    quantize_group,
+    unpack_nibbles,
+)
 
 
 def test_pack_unpack_roundtrip_even():
@@ -26,3 +31,22 @@ def test_pack_rejects_out_of_range():
     except ValueError:
         return
     raise AssertionError("expected ValueError for code > 15")
+
+
+def test_group_quant_error_within_step():
+    rng = np.random.default_rng(2)
+    x = rng.standard_normal(500).astype(np.float32)
+    packed = quantize_group(x, group_size=64)
+    xr = dequantize_group(packed)
+    assert xr.shape == x.shape
+    # per-group max error is bounded by one quantization step of that group
+    step = float(packed.scale.max())
+    assert np.max(np.abs(x - xr)) <= step * 1.01
+
+
+def test_group_quant_smaller_groups_reduce_error():
+    rng = np.random.default_rng(3)
+    x = rng.standard_normal(1024).astype(np.float32)
+    err_big = np.abs(x - dequantize_group(quantize_group(x, 256))).mean()
+    err_small = np.abs(x - dequantize_group(quantize_group(x, 32))).mean()
+    assert err_small < err_big
