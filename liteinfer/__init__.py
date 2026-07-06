@@ -11,7 +11,7 @@ inference, all runnable offline on plain NumPy:
 from liteinfer._version import __version__
 from liteinfer.config import QuantConfig, SpecDecodeConfig
 from liteinfer.kvcache.attention import paged_attention
-from liteinfer.kvcache.block import BlockAllocator
+from liteinfer.kvcache.blocks import BlockAllocator
 from liteinfer.kvcache.manager import BlockSpaceManager
 from liteinfer.kvcache.paged_cache import PagedKVStore
 from liteinfer.quant.int4 import dequantize_group, quantize_group
