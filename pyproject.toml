@@ -13,7 +13,7 @@ authors = [{ name = "Song Yuchen" }]
 dependencies = ["numpy>=1.21"]
 
 [project.optional-dependencies]
-torch = ["torch>=2.0"]
+torch = ["torch>=2.14.0"]
 dev = ["pytest>=7", "pytest-cov", "ruff", "mypy"]
 
 [project.scripts]
